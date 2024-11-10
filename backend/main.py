@@ -48,3 +48,11 @@ def execute_command():
         action_dict = action
         
     return jsonify(action_dict)
+
+
+@app.route('/userInput', methods=['POST'])
+def translate_user_input():
+    data = request.get_json()
+    print("User Input: ", data)
+    return jsonify({"status": "success"})
+

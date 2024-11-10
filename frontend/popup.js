@@ -1,4 +1,4 @@
-document.getElementById("logButton").addEventListener("click", () => {
+document.getElementById("startButton").addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     chrome.scripting.executeScript(
       {
@@ -41,9 +41,7 @@ document.getElementById("logButton").addEventListener("click", () => {
       }
     );
   });
-});
 
-document.getElementById("executeButton").addEventListener("click", async () => {
   chrome.windows.create(
     {
       url: chrome.runtime.getURL("new-window/new_window.html"),
@@ -55,6 +53,10 @@ document.getElementById("executeButton").addEventListener("click", async () => {
       chrome.runtime.sendMessage(newWindow.id, { message: "HELLO!" });
     }
   );
+
+});
+
+document.getElementById("executeButton").addEventListener("click", async () => {
 
   const inputField = document.getElementById("inputField");
   const user_command = inputField.value;
@@ -115,4 +117,11 @@ document.getElementById("executeButton").addEventListener("click", async () => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Audio file received from new window:", message.audioPrompt);
   sendResponse({ response: "Hello from the extension!" });
+  fetch("http://localhost:5000/userInput", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ user_command: message.audioPrompt }),
+  });
 });
