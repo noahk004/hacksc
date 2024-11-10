@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
 from conversation.speech_to_text import process_audio_data
+from conversation.text_to_speech import textToSpeech
 
 app = Flask(__name__)
 CORS(app)  
@@ -24,6 +25,7 @@ def sort_elements():
 @app.route('/execute', methods=['POST'])
 def execute_command():
     command = request.get_json()
+    job_summary = "Job Is Finished"
     messages = {
         "messages": [
             {
@@ -48,7 +50,9 @@ def execute_command():
     else:
         action_dict = action
         
-    return jsonify(action_dict)
+    encoded_summary = textToSpeech(job_summary)
+    print("Length of encoded summary: ", len(encoded_summary))
+    return jsonify({"action": action_dict, "summary": encoded_summary})
 
 
 @app.route('/userInput', methods=['POST'])

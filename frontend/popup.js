@@ -82,7 +82,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     const data = await response.json();
     console.log("Response from server:", data);
-    sampleData = data;
+    sampleData = data.action;
+  
+    if (data.summary) {
+      console.log("it should play now");
+      const audio = new Audio();
+      const audioData = atob(data.summary);
+      const audioArray = new Uint8Array(audioData.length);
+      for (let i = 0; i < audioData.length; i++) {
+        audioArray[i] = audioData.charCodeAt(i);
+      }
+      const audioBlob = new Blob([audioArray], { type: 'audio/mp3' });
+      audio.src = URL.createObjectURL(audioBlob);
+      await audio.play();
+    }
   } catch (error) {
     console.error("Error sending command to server:", error);
   }

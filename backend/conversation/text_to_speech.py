@@ -16,15 +16,10 @@ def textToSpeech(input: str) -> bytes:
 
     r = requests.post(url=url, json=data, headers=headers)
     content = json.loads(r.content)
-    print(content)
 
     base64_audio_string = content["audioContent"]
 
-    # Decode the Base64 string into bytes
-    audio_data = base64.b64decode(base64_audio_string)
-
-    print(audio_data)
-    return audio_data
+    return base64_audio_string
 
     # Save the decoded audio to an audio file
     # with open("output.mp3", "wb") as audio_file:
@@ -32,4 +27,4 @@ def textToSpeech(input: str) -> bytes:
 
 
 if __name__ == "__main__":
-    textToSpeech("Hello, how are you?")
+    res = textToSpeech("Hello, how are you?")
