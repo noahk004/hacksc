@@ -93,6 +93,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         audioArray[i] = audioData.charCodeAt(i);
       }
       const audioBlob = new Blob([audioArray], { type: 'audio/mp3' });
+
       audio.src = URL.createObjectURL(audioBlob);
       await audio.play();
     }
@@ -126,7 +127,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               button.click();
             }
           });
-        }
+        } 
       },
       args: [sampleData],
     });
