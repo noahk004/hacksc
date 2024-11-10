@@ -3,7 +3,7 @@
   "name": "Hello Extensions",
   "description": "Base Level Extension",
   "version": "1.0",
-  "host_permissions": ["localhost:3000/*"],
+  "host_permissions": ["http://127.0.0.1:5000/*"],
   "permissions": ["activeTab", "scripting"],
   "action": {
     "default_popup": "popup.html",
