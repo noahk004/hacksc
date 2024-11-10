@@ -7,25 +7,12 @@ from conversation.text_to_speech import textToSpeech
 app = Flask(__name__)
 CORS(app)  
 
-@app.route("/")
-def test():
-    return jsonify(message="Hello, World!")
+
 
 elements = []
 url = "https://e962-1-65-253-209.ngrok-free.app/generate"
 
-@app.route('/elements', methods=['POST'])
-def sort_elements():
-    data = request.get_json()
-    global elements
-    elements = data.get("elements", [])
-    print("Elements Length: ", len(elements))
-    return jsonify({"status": "success"})
-
-@app.route('/execute', methods=['POST'])
-def execute_command():
-    command = request.get_json()
-    job_summary = "Job Is Finished"
+def generate_action_dict(elements, command):
     messages = {
         "messages": [
             {
@@ -41,6 +28,38 @@ def execute_command():
     }
     response = requests.post(url, json=messages)
     action = response.json()['response'][-1]['content']
+    return action
+
+def generate_job_summary(elements, action):
+    messages = {
+        "messages": [
+            {"role": "system", "content": str(elements) + """These are all of the elements in the page, and 
+             this is the action that was taken:""" + str(action) + """
+             Your job is to generate a very brief summary of the job that was done, and future possible actions that can be taken.
+             This should be 30 words maximum."""}
+        ]
+    }
+    response = requests.post(url, json=messages)
+    summary = response.json()['response'][-1]['content']
+    return summary
+
+
+
+
+@app.route('/elements', methods=['POST'])
+def sort_elements():
+    data = request.get_json()
+    global elements
+    elements = data.get("elements", [])
+    print("Elements Length: ", len(elements))
+    return jsonify({"status": "success"})
+
+@app.route('/execute', methods=['POST'])
+def execute_command():
+    command = request.get_json()
+    job_summary = "Job Is Finished"
+    action = generate_action_dict(elements, command)
+    job_summary = generate_job_summary(elements, action)
     print("Action: ", action)
     
     # Convert the string response to a dictionary if needed
