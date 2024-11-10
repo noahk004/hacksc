@@ -7,7 +7,7 @@ def getSpeechToText() -> str:
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Say something!")
-        audio = r.listen(source)
+        audio = r.listen(source, timeout=2, phrase_time_limit=19)
 
     # recognize speech using Google Speech Recognition
     try:
@@ -23,3 +23,6 @@ def getSpeechToText() -> str:
     except sr.RequestError as e:
         print("Could not request results from Google Speech Recognition service; {0}".format(e))
         return
+    
+if __name__ == "__main__":
+    getSpeechToText()
