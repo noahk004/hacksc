@@ -40,11 +40,25 @@ document.getElementById('logButton').addEventListener('click', () => {
 });
 
 document.getElementById('executeButton').addEventListener('click', async () => {
-
-    const sampleData = {'action': 'input', 'input_name': 'username', 'text_value': 'justin.siek'};
-    //const sampleData = {'action': 'click', 'button_content': 'Log in'};
-
-
+    const inputField = document.getElementById('inputField');
+    const user_command = inputField.value;
+    let sampleData = "";
+    
+    try {
+        const response = await fetch("http://localhost:5000/execute", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ user_command })
+        });
+        const data = await response.json();
+        console.log("Response from server:", data);
+        sampleData = data;
+    } catch (error) {
+        console.error("Error sending command to server:", error);
+    }
+    console.log("Command:", sampleData);
     try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         
@@ -78,8 +92,11 @@ document.getElementById('executeButton').addEventListener('click', async () => {
     } catch (error) {
         console.error("Error:", error);
     }
+    
 });
-
+  
+  
+  
 
 
 

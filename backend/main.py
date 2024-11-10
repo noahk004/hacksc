@@ -10,24 +10,14 @@ def test():
     return jsonify(message="Hello, World!")
 
 elements = []
-url = "https://382a-201-92-225-229.ngrok-free.app/generate"
+url = "https://e13b-174-116-39-92.ngrok-free.app/generate"
 
 @app.route('/elements', methods=['POST'])
 def sort_elements():
     data = request.get_json()
+    global elements
     elements = data.get("elements", [])
-    print("generating...")
-    test_messages = {
-        "messages": [
-            {"role": "system", "content": str(elements) + "these are all the elements on the page"},
-            {"role": "user", "content": """As a user, what are the 5 most important elements on this page? List them in order of importance, in this format:
-             [element1, element2, element3, element4, element5], dont change any of the formatting , keep the content name tag type format"""}
-        ]
-    }
-    response = requests.post(url, json=test_messages)
-    print(response.json())
-    print('finished')
-    elements = response.json()['response'][-1]['content']
+    print("Elements Length: ", len(elements))
     return jsonify({"status": "success"})
 
 @app.route('/execute', methods=['POST'])
@@ -37,13 +27,24 @@ def execute_command():
         "messages": [
             {
                 "role": "system", 
-                "content": str(elements) +  """these are all the elements on the page. Your job is to sort them by importance, and, based off of
+                "content": str(elements) +  """Only return the dictionary, or else the extension will break. These are all the elements on the page. Your job is to sort them by importance, and, based off of
                 what the user says, take action on one of them. here is the format on how you return:
                 if they want to input something, you return a dictionary with this format:{'action': 'input', 'input_name': 'username', 'text_value': 'justin.siek'}
-                if they want to click something, you return a dictionary with this format:{'action': 'click', 'button_content': 'Log in'}"""
+                if they want to click something, you return a dictionary with this format:{'action': 'click', 'button_content': 'Log in'}
+                Extremely important that you do not return anything else besides the dictionary, or else the extension will break. If the prompt says password, it is a password field."""
             },
-            {"role": "user", "content": command}
+            {"role": "user", "content": command['user_command']}
         ]
     }
     response = requests.post(url, json=messages)
-    return jsonify({"response": response.json()['response'][-1]['content']})
+    action = response.json()['response'][-1]['content']
+    print("Action: ", action)
+    
+    # Convert the string response to a dictionary if needed
+    if isinstance(action, str):
+        import ast
+        action_dict = ast.literal_eval(action)
+    else:
+        action_dict = action
+        
+    return jsonify(action_dict)
