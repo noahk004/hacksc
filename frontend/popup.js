@@ -9,41 +9,7 @@ document.getElementById("logButton").addEventListener("click", () => {
               "h1, h2, h3, h4, h5, h6, p, a[href]"
           );
 
-          const elementData = [];
-          elements.forEach((element) => {
-            let content =
-              element.tagName === "INPUT" ? element.value : element.innerText;
-            elementData.push({
-              tag: element.tagName.toLowerCase(),
-              content: content.trim(),
-              name: element.name,
-              type: element.type,
-            });
-          });
-          console.log(elementData);
-          return elementData;
-        },
-      },
-      (result) => {
-        const elements = result[0].result;
-        console.log(elements);
-
-        fetch("http://localhost:5000/elements", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ elements }),
-        })
-          .then((response) => response.json())
-          .then((data) => console.log("Response from server:", data))
-          .catch((error) => console.error("Error:", error));
-      }
-    );
-  });
-});
-
-document.getElementById("executeButton").addEventListener("click", async () => {
+document.getElementById('executeButton').addEventListener('click', async () => {
   chrome.windows.create(
     {
       url: chrome.runtime.getURL("new_window.html"),
@@ -55,13 +21,64 @@ document.getElementById("executeButton").addEventListener("click", async () => {
       chrome.runtime.sendMessage(newWindow.id, { message: "HELLO!" });
     }
   );
-
-  const sampleData = {
-    action: "input",
-    input_name: "username",
-    text_value: "justin.siek",
-  };
-  //const sampleData = {'action': 'click', 'button_content': 'Log in'};
+  
+    const inputField = document.getElementById('inputField');
+    const user_command = inputField.value;
+    let sampleData = "";
+    
+    try {
+        const response = await fetch("http://localhost:5000/execute", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ user_command })
+        });
+        const data = await response.json();
+        console.log("Response from server:", data);
+        sampleData = data;
+    } catch (error) {
+        console.error("Error sending command to server:", error);
+    }
+    console.log("Command:", sampleData);
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        
+        await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: (sampleData) => {
+                if (sampleData.action === 'input') {
+                    // Handle input action
+                    const inputs = document.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        if (input.name === sampleData.input_name) {
+                            input.value = sampleData.text_value;
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    });
+                } 
+                else if (sampleData.action === 'click') {
+                    // Handle button click action
+                    const buttons = document.querySelectorAll('button');
+                    buttons.forEach(button => {
+                        if (button.textContent.trim() === sampleData.button_content) {
+                            button.click();
+                        }
+                    });
+                }
+            },
+            args: [sampleData]
+        });
+        
+        console.log(`Action '${sampleData.action}' executed successfully`);
+    } catch (error) {
+        console.error("Error:", error);
+    }
+    
+});
+  
+  
+  
 
   try {
     const [tab] = await chrome.tabs.query({
