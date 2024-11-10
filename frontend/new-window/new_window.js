@@ -1,53 +1,64 @@
 let mediaRecorder;
 let audioChunks = [];
+let isRecording = false;
 
 const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 
-startBtn.addEventListener("click", async () => {
+// Add spacebar event listener
+document.addEventListener('keydown', async (event) => {
+  if (event.code === 'Space') {
+    event.preventDefault(); // Prevent page scrolling
+    if (!isRecording) {
+      await startRecording();
+    } else {
+      stopRecording();
+    }
+  }
+});
+
+// Refactor the recording logic into separate functions
+async function startRecording() {
   const sound = new Audio("start.wav");
   sound.play();
 
   startBtn.disabled = true;
   stopBtn.disabled = false;
-  audioChunks = []; // Clear previous recordings
+  audioChunks = [];
 
-  // Request access to the microphone
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   mediaRecorder = new MediaRecorder(stream);
 
-  // Capture audio data
   mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-
-  // Start recording
   mediaRecorder.start();
-});
+  isRecording = true;
+}
 
-stopBtn.addEventListener("click", () => {
-    const sound = new Audio("stop.wav");
-    sound.play();
+function stopRecording() {
+  const sound = new Audio("stop.wav");
+  sound.play();
+  
   startBtn.disabled = false;
   stopBtn.disabled = true;
 
-  // Stop recording
   mediaRecorder.stop();
+  isRecording = false;
 
-  // Save the recording as a file
   mediaRecorder.onstop = () => {
     const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 
-    // Convert the Blob to a Base64 string if needed (optional)
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64data = reader.result.split(",")[1]; // Strip the base64 header
-
-      // Send the Base64-encoded audio data to the extension
+      const base64data = reader.result.split(",")[1];
       chrome.runtime.sendMessage({ audioPrompt: base64data }, (response) => {
         console.log("Audio data sent to extension:", response);
       });
     };
     reader.readAsDataURL(audioBlob);
-    // Clean up
     mediaRecorder.stream.getTracks().forEach((track) => track.stop());
   };
-});
+}
+
+// Keep the existing click event listeners
+startBtn.addEventListener("click", startRecording);
+stopBtn.addEventListener("click", stopRecording);

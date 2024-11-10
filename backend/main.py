@@ -10,7 +10,7 @@ CORS(app)
 
 
 elements = []
-url = "https://e962-1-65-253-209.ngrok-free.app/generate"
+url = "https://7430-38-175-183-61.ngrok-free.app/generate"
 
 def generate_action_dict(elements, command):
     messages = {

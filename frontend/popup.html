@@ -4,9 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Popup</title>
+    <style>
+        #startButton {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #startButton::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            transform: skewX(-25deg);
+            animation: none;
+            transition: all 0.4s ease;
+        }
+
+        #startButton:hover::before {
+            animation: shine 2.5s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -100%;
+            }
+            35% {
+                left: 100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        #startButton:hover {
+            background: rgba(255, 255, 255, 0.25) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15), 
+                        0 2px 4px rgba(0, 0, 0, 0.15), 
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
+        }
+    </style>
 </head>
-<body>
-    <button id="startButton">Start</button>
+<body style="
+    width: 100px; 
+    padding: 20px; 
+    background: linear-gradient(135deg, #97acff 0%, #00ccff 100%);
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    min-height: 50px;">
+
+    <button id="startButton" style="
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.2); 
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-size: 16px; 
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
+                    0 1px 3px rgba(0, 0, 0, 0.1), 
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;">Start</button>
+
     <script src="popup.js"></script>
 </body>
 </html>
