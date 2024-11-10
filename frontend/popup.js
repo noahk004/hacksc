@@ -1,3 +1,10 @@
+document.addEventListener('keydown', (event) => {
+  if (event.code === 'Space') {
+    event.preventDefault(); // Prevent space from scrolling the page
+    document.getElementById("startButton").click();
+  }
+});
+
 document.getElementById("startButton").addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     chrome.scripting.executeScript(
