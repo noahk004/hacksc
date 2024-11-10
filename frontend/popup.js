@@ -46,8 +46,8 @@ document.getElementById("startButton").addEventListener("click", () => {
     {
       url: chrome.runtime.getURL("new-window/new_window.html"),
       type: "popup",
-      width: 800,
-      height: 600,
+      width: 400,
+      height: 400,
     },
     (newWindow) => {
       chrome.runtime.sendMessage(newWindow.id, { message: "HELLO!" });
@@ -56,12 +56,22 @@ document.getElementById("startButton").addEventListener("click", () => {
 
 });
 
-document.getElementById("executeButton").addEventListener("click", async () => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("Audio file received from new window:", message.audioPrompt);
+  sendResponse({ response: "Hello from the extension!" });
+  fetch("http://localhost:5000/userInput", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ user_command: message.audioPrompt }),
+  })
+  .then((response) => response.json())
+  .then(async (text) => {
+    console.log("Text from server:", text);
+    user_command = text.text;
 
-  const inputField = document.getElementById("inputField");
-  const user_command = inputField.value;
-  let sampleData = "";
-
+  
   try {
     const response = await fetch("http://localhost:5000/execute", {
       method: "POST",
@@ -114,14 +124,6 @@ document.getElementById("executeButton").addEventListener("click", async () => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Audio file received from new window:", message.audioPrompt);
-  sendResponse({ response: "Hello from the extension!" });
-  fetch("http://localhost:5000/userInput", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ user_command: message.audioPrompt }),
-  });
-});
+  })
+    .catch((error) => console.error("Error:", error));
+  

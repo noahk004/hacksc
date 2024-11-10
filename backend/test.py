@@ -174,7 +174,7 @@ def read_important_elements(important_elements):
     return description_of_important_elements
 
 
-def generate_action(user_input, url = "https://af16-23-233-149-50.ngrok-free.app/generate"):
+def generate_action(user_input, url = "https://e962-1-65-253-209.ngrok-free.app/generate"):
     # Test payload
     messages = {
         "messages": [
@@ -195,9 +195,5 @@ def generate_action(user_input, url = "https://af16-23-233-149-50.ngrok-free.app
 
 # Example usage
 if __name__ == "__main__":
-    important_elements = get_important_elements(elements)
-    print("Important elements:", important_elements)
-    description_of_important_elements = read_important_elements(important_elements)
-    print("Description of important elements:", description_of_important_elements)
     result = generate_action("I have finished entering the information, log me in")
     print("Response:", result)

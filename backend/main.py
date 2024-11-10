@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
+from conversation.speech_to_text import process_audio_data
 
 app = Flask(__name__)
 CORS(app)  
@@ -10,7 +11,7 @@ def test():
     return jsonify(message="Hello, World!")
 
 elements = []
-url = "https://e13b-174-116-39-92.ngrok-free.app/generate"
+url = "https://e962-1-65-253-209.ngrok-free.app/generate"
 
 @app.route('/elements', methods=['POST'])
 def sort_elements():
@@ -54,5 +55,7 @@ def execute_command():
 def translate_user_input():
     data = request.get_json()
     print("User Input: ", data)
-    return jsonify({"status": "success"})
+    text = process_audio_data(data['user_command'])
+    print("Translated Text: ", text)
+    return jsonify({"text": text})
 
